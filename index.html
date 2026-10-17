@@ -1,0 +1,563 @@
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Unutma!</title>
+
+  <style>
+    /* sayfanin genel gorunumu */
+    body {
+      background: #fffafd;
+      color: #352d39;
+      font-family: Arial, sans-serif;
+      max-width: 650px;
+      margin: 40px auto;
+      padding: 20px;
+    }
+
+    /* ana basligin rengi */
+    h1 {
+      color: #df78a5;
+    }
+
+    /* butonlarin gorunumu */
+    button {
+      background: #df78a5;
+      color: white;
+      border: none;
+      padding: 10px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    /* ikinci buton tasarimi */
+    .secondary {
+      background: white;
+      color: #8c5270;
+      border: 1px solid #e8cbd9;
+    }
+
+    /* liste butonlarini yanyana diziyoruz */
+    .list-buttons {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 15px 0;
+    }
+
+    /* esya satirlari */
+    li {
+      padding: 10px 4px;
+      border-bottom: 1px solid #f0e5ed;
+    }
+
+    li label {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    /* isaretlenen esyanin ustunu ciziyoruz */
+    li.done span {
+      text-decoration: line-through;
+      color: #aaa;
+    }
+
+    /* yazi kutularinin gorunumu */
+    input[type="text"] {
+      flex: 1;
+      min-width: 0;
+      padding: 10px;
+      border: 1px solid #e8cbd9;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    /* form elemanlarini yan yana getiriyoruz */
+    .form-row {
+      display: flex;
+      gap: 8px;
+      margin: 15px 0;
+    }
+
+    /* esya sayisinin gorunumu */
+    .progress {
+      color: #9d909f;
+      font-size: 14px;
+    }
+
+    /* cantanin durumunu gosteren kutunun gorunumu */
+    .status-card {
+      background: #fff1f7;
+      border: 1px solid #f3d6e4;
+      border-radius: 14px;
+      padding: 16px;
+      margin: 18px 0;
+    }
+
+    /* durum basliginin gorunumu */
+    .status-title {
+      font-weight: bold;
+      margin: 0 0 8px;
+      color: #8c5270;
+    }
+
+    /* durum aciklamasinin gorunumu */
+    .status-message {
+      margin: 0 0 12px;
+      font-size: 14px;
+    }
+
+    /* ilerleme cubugunun arka planini ayarliyoruz */
+    .progress-track {
+      width: 100%;
+      height: 12px;
+      background: #f0dce6;
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    /* tamamlanma oranina gore pembe cubugu uzatiyoruz */
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: #df78a5;
+      border-radius: 20px;
+      transition: width 0.25s ease;
+    }
+
+    /* esya sayisi ve yuzdesini yan yana gosteriyoruz */
+    .progress-details {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 8px;
+      color: #8c5270;
+      font-size: 13px;
+    }
+
+    /* butun esyalar hazir olunca cikan mesajin gorunumu */
+    .notice {
+      background: #f2fff5;
+      border: 1px solid #b9e7c5;
+      border-radius: 10px;
+      color: #27683a;
+      padding: 12px;
+      margin: 12px 0;
+    }
+
+    /* liste butonlarindaki yuzdenin gorunumu */
+    .list-progress {
+      font-size: 12px;
+      opacity: 0.9;
+      margin-left: 4px;
+    }
+
+    /* esya listesinin boslugunu ayarliyoruz */
+    ul {
+      padding-left: 22px;
+    }
+
+    /* bilgi kutularini yanyana diziyoruz */
+    .info-boxes {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 15px 0;
+    }
+
+    /* bilgi kutularinin gorunumunu ayarliyoruz */
+    .info-box {
+      flex: 1;
+      min-width: 140px;
+      background: #fff1f7;
+      border: 1px solid #f0d5e2;
+      border-radius: 10px;
+      padding: 12px;
+    }
+
+    /* bilgi kutularindaki basliklarin rengini ayarliyoruz */
+    .info-box strong {
+      color: #8c5270;
+      font-size: 14px;
+    }
+
+    /* bilgi kutularindaki aciklamalarin gorunumu */
+    .info-box p {
+      font-size: 13px;
+      line-height: 1.5;
+      margin-bottom: 0;
+    }
+
+    /* uygulamanin kucuk ekranlarda duzgun gorunmesini sagliyoruz */
+    @media (max-width: 480px) {
+      body {
+        margin: 15px auto;
+        padding: 14px;
+      }
+
+      .form-row {
+        flex-wrap: wrap;
+      }
+
+      .form-row input {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Unutma!</h1>
+  <p>Yanına almayı unutma.</p>
+
+  <!-- listelerin butonlari buraya gelecek -->
+  <div class="list-buttons" id="listButtons"></div>
+
+  <h2 id="listTitle">Okul listem</h2>
+
+  <!-- cantanin durumunu ve ilerleme cubugunu gosteriyoruz -->
+  <section class="status-card" aria-live="polite">
+    <p class="status-title">Çantan ne durumda?</p>
+    <p class="status-message" id="statusMessage">
+      Henüz eşya işaretlemedin.
+    </p>
+
+    <!-- esyalar hazirlandikca bu cubuk dolacak -->
+    <div
+      class="progress-track"
+      role="progressbar"
+      id="progressTrack"
+      aria-label="Listenin tamamlanma oranı"
+      aria-valuemin="0"
+      aria-valuemax="100"
+      aria-valuenow="0"
+    >
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <!-- hazir olan esya sayisini ve yuzdeyi gosteriyoruz -->
+    <div class="progress-details">
+      <span id="progress">0/3 eşya hazır</span>
+      <strong id="percentage">%0</strong>
+    </div>
+  </section>
+
+  <!-- butun esyalar hazir olunca tebrik mesaji burada cikacak -->
+  <div id="notice" class="notice" role="status" hidden></div>
+
+  <!-- esyalari burada gosteriyoruz -->
+  <ul id="liste"></ul>
+
+  <!-- yeni esya ekleme bolumu -->
+  <form class="form-row" id="itemForm">
+    <input
+      type="text"
+      id="esya"
+      placeholder="Yeni eşya yaz..."
+      maxlength="100"
+      aria-label="Yeni eşya"
+    >
+    <button type="submit">Ekle</button>
+  </form>
+
+  <!-- yeni liste olusturma bolumu -->
+  <h3>Yeni liste oluştur</h3>
+
+  <form class="form-row" id="listForm">
+    <input
+      type="text"
+      id="listeAdi"
+      placeholder="Örn. Hafta sonu"
+      maxlength="32"
+      aria-label="Yeni liste adı"
+    >
+    <button type="submit" class="secondary">
+      Liste oluştur
+    </button>
+  </form>
+
+  <!-- uygulamanin ozelliklerini kucuk kutucuklarla anlatiyoruz -->
+  <h3>Unutma! ile</h3>
+
+  <div class="info-boxes">
+    <div class="info-box">
+      <strong>Listeni oluştur</strong>
+      <p>İhtiyacın olan eşyaları ekle.</p>
+    </div>
+
+    <div class="info-box">
+      <strong>Eşyalarını işaretle</strong>
+      <p>Hazır olanları kolayca takip et.</p>
+    </div>
+
+    <div class="info-box">
+      <strong>Hazırlığını kontrol et</strong>
+      <p>Hiçbir şeyi unutma!</p>
+    </div>
+  </div>
+
+  <script>
+    // baslangic listelerini olusturuyoruz
+    const lists = [
+      {
+        name: "Okul",
+        items: [
+          { name: "Okul çantası", checked: false },
+          { name: "Kalem kutusu", checked: false },
+          { name: "Su matarası", checked: false }
+        ],
+        celebrated: false
+      },
+      {
+        name: "Spor",
+        items: [
+          { name: "Spor kıyafetleri", checked: false },
+          { name: "Spor ayakkabısı", checked: false },
+          { name: "Havlu", checked: false }
+        ],
+        celebrated: false
+      }
+    ];
+
+    // ilk basta okul listesini seciyoruz
+    let activeIndex = 0;
+
+    // html elemanlarini idlerine gore buluyoruz
+    const listButtons =
+      document.getElementById("listButtons");
+
+    const listTitle =
+      document.getElementById("listTitle");
+
+    const progress =
+      document.getElementById("progress");
+
+    const percentageText =
+      document.getElementById("percentage");
+
+    const progressBar =
+      document.getElementById("progressBar");
+
+    const progressTrack =
+      document.getElementById("progressTrack");
+
+    const statusMessage =
+      document.getElementById("statusMessage");
+
+    const notice =
+      document.getElementById("notice");
+
+    const liste =
+      document.getElementById("liste");
+
+    const esyaInput =
+      document.getElementById("esya");
+
+    const listeAdiInput =
+      document.getElementById("listeAdi");
+
+
+    // sayfadaki listeleri ve esyalari guncelliyoruz
+    function render() {
+      listButtons.innerHTML = "";
+
+      // her liste icin bir buton olusturuyoruz
+      lists.forEach((list, index) => {
+        const button = document.createElement("button");
+
+        // her listenin hazir olan esyalarini sayiyoruz
+        const listDone = list.items.filter(
+          item => item.checked
+        ).length;
+
+        const listTotal = list.items.length;
+
+        // her listenin tamamlanma yuzdesini hesapliyoruz
+        const listPercentage = listTotal === 0
+          ? 0
+          : Math.round((listDone / listTotal) * 100);
+
+        // liste adinin yaninda tamamlanma yuzdesini gosteriyoruz
+        button.textContent =
+          list.name + " · %" + listPercentage;
+
+        if (index !== activeIndex) {
+          button.className = "secondary";
+        }
+
+        // butona basinca secilen listeyi aciyoruz
+        button.addEventListener("click", () => {
+          activeIndex = index;
+          notice.hidden = true;
+          render();
+        });
+
+        listButtons.appendChild(button);
+      });
+
+      const activeList = lists[activeIndex];
+
+      listTitle.textContent =
+        activeList.name + " listem";
+
+      liste.innerHTML = "";
+
+      // secilen listenin esyalarini gosteriyoruz
+      activeList.items.forEach((item, index) => {
+        const li = document.createElement("li");
+        const label = document.createElement("label");
+        const checkbox = document.createElement("input");
+        const name = document.createElement("span");
+
+        checkbox.type = "checkbox";
+        checkbox.checked = item.checked;
+        name.textContent = item.name;
+
+        if (item.checked) {
+          li.className = "done";
+        }
+
+        // esya isaretlenince durumunu guncelliyoruz
+        checkbox.addEventListener("change", () => {
+          activeList.items[index].checked =
+            checkbox.checked;
+
+          // butun esyalarin hazir olup olmadigini kontrol ediyoruz
+          const allDone =
+            activeList.items.length > 0 &&
+            activeList.items.every(item => item.checked);
+
+          // liste ilk kez tamamlaninca tebrik mesaji gosteriyoruz
+          if (allDone && !activeList.celebrated) {
+            activeList.celebrated = true;
+
+            notice.textContent =
+              "🎉 Harika! " + activeList.name +
+              " listesindeki bütün eşyalar hazır!";
+
+            notice.hidden = false;
+          } else if (!allDone) {
+            // bir esyanin isareti kaldirilirsa tekrar tamamlanabilir
+            activeList.celebrated = false;
+            notice.hidden = true;
+          }
+
+          render();
+        });
+
+        label.appendChild(checkbox);
+        label.appendChild(name);
+        li.appendChild(label);
+        liste.appendChild(li);
+      });
+
+      // tamamlanan esyalari sayiyoruz
+      const done = activeList.items.filter(
+        item => item.checked
+      ).length;
+
+      // listedeki toplam esya sayisini buluyoruz
+      const total = activeList.items.length;
+
+      // yuzde ile tamamlanma oranini hesapliyoruz
+      const percentage = total === 0
+        ? 0
+        : Math.round((done / total) * 100);
+
+      // hazir olan esya sayisini gosteriyoruz
+      progress.textContent =
+        done + "/" + total + " esya hazir";
+
+      // tamamlanma yuzdesini gosteriyoruz
+      percentageText.textContent = "%" + percentage;
+
+      // esyalar hazirlandikca ilerleme cubugunu dolduruyoruz
+      progressBar.style.width = percentage + "%";
+
+      // ilerleme cubugunun yuzdesini guncelliyoruz
+      progressTrack.setAttribute("aria-valuenow", percentage);
+
+      // cantanin genel durumunu yaziyoruz
+      if (total === 0) {
+        statusMessage.textContent =
+          "Bu liste henüz boş. İlk eşyanı ekleyebilirsin!";
+      } else if (percentage === 100) {
+        statusMessage.textContent =
+          "Her şey hazır! Çantanı kontrol etmeyi unutma. 💗";
+      } else if (done === 0) {
+        statusMessage.textContent =
+          "Henüz hazır eşya yok. Hadi başlayalım!";
+      } else {
+        statusMessage.textContent =
+          (total - done) + " eşya daha hazırlaman gerekiyor.";
+      }
+    }
+
+
+    // yeni esya ekliyoruz
+    document.getElementById("itemForm")
+      .addEventListener("submit", event => {
+        event.preventDefault();
+
+        const name = esyaInput.value.trim();
+
+        if (name === "") return;
+
+        lists[activeIndex].items.push({
+          name: name,
+          checked: false
+        });
+
+        // yeni esya eklenince tebrik durumunu sifirliyoruz
+        lists[activeIndex].celebrated = false;
+        notice.hidden = true;
+
+        esyaInput.value = "";
+        render();
+      });
+
+
+    // yeni liste olusturuyoruz
+    document.getElementById("listForm")
+      .addEventListener("submit", event => {
+        event.preventDefault();
+
+        const name = listeAdiInput.value.trim();
+
+        if (name === "") return;
+
+        // ayni isimde liste olusturulmasini engelliyoruz
+        const alreadyExists = lists.some(
+          list =>
+            list.name.toLocaleLowerCase("tr") ===
+            name.toLocaleLowerCase("tr")
+        );
+
+        if (alreadyExists) {
+          alert("Bu isimde bir liste zaten var.");
+          return;
+        }
+
+        lists.push({
+          name: name,
+          items: [],
+          celebrated: false
+        });
+
+        // yeni olusturulan listeyi aciyoruz
+        activeIndex = lists.length - 1;
+        listeAdiInput.value = "";
+        notice.hidden = true;
+
+        render();
+      });
+
+
+    // sayfa acilinca listeleri gosteriyoruz
+    render();
+  </script>
+</body>
+</html>
